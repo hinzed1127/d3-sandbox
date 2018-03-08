@@ -1,0 +1,14 @@
+.chart {
+	position: relative;
+	padding: 10px 10px 20px 50px;
+	height: 400px;
+}
+
+.bar {
+	display: inline-block;
+	background-color: teal;
+}
+
+.bar:not(:first-of-type) {
+	margin-left: 2.5px;
+}

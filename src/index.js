@@ -5,11 +5,7 @@ import { select } from 'd3-selection';
 import { transition } from 'd3-transition'; // eslint-disable-line no-unused-vars
 import { render } from 'react-dom';
 import { data } from './data';
-
-const styles = {
-	position: 'relative',
-	padding: '10px 10px 20px 50px'
-};
+import './styles.css';
 
 const margin = {
 	top: 10,
@@ -30,13 +26,13 @@ class App extends React.Component {
 	createScales() {
 		const { data } = this.props;
 
-		this.xScale = scaleLinear()
-			.domain([0, 100])
+		this.xScale = scaleBand()
+			.domain(data.map(d => d.name))
 			.range([0, width]);
 
-		this.yScale = scaleBand()
-			.domain(data.map(d => d.name))
-			.range([0, height]);
+		this.yScale = scaleLinear()
+			.domain([0, 100])
+			.range([height, 0]);
 	}
 
 	createAxes() {
@@ -64,24 +60,27 @@ class App extends React.Component {
 			.selectAll('div')
 			.data(this.props.data, d => d.name);
 
-		bars.exit().remove();
+		bars
+			.exit()
+			.remove();
 
 		bars
 			.enter()
 			.append('div')
+			.attr('class', 'bar')
+			.style('width', d => `${this.xScale.bandwidth() - 2}px`)
+			.style('height', 0)
+			.style('margin-top', `${height}px`)
 			.merge(bars)
 			.transition()
-			.style('height', '20px')
-			.style('background-color', 'teal')
-			.style('margin-top', '2px')
-			.style('width', d => `${this.xScale(d.subjects[subject])}px`)
-			.style('height', d => `${this.yScale.bandwidth() - 2}px`); //subtract 2 to account for margin-top
+			.style('height', d => `${height - this.yScale(d.subjects[subject])}px`)
+			.style('margin-top', d => `${this.yScale(d.subjects[subject])}px`);
 	}
 
 	render() {
 		return (
 			<div>
-				<div style={styles} ref={container => (this.container = container)} />
+				<div className='chart' ref={container => (this.container = container)} />
 				{Object.keys(this.props.data[0].subjects).map(subject => {
 					return (
 						<button key={subject} onClick={() => this.updateChart(subject)}>
